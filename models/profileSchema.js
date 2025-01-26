@@ -20,9 +20,6 @@ const profileSchema = new mongoose.Schema({
     bloodGlucose: {
         type: String,
     },
-    familyHistory: {
-        type: Boolean
-    },
     pregnancies: {
         type: String
     },

@@ -10,6 +10,8 @@ function CreateSession(){
 
     // const {data: session} = useSession()
     const {toast} = useToast()
+    const [fileName, setFileName] = useState(null)
+    const [image, setImage] = useState(null);
     const [isReportCorrect, setReportCorrect] = useState(false)
     const [hasSubmittedReport, setSubmittedReport] = useState(false)
     const [submittedData, setSubmittedData] = useState(false)
@@ -24,43 +26,87 @@ function CreateSession(){
         BMI: '',
         diabetesPedigreeFunction: '',
         bloodGlucose: '',
-        familyHistory: false,
-        pregnancies: '',       
+        pregnancies: '',
+        skinThickness: ''       
     })
     const [isSubmitting, setSubmitting] = useState(false)
     const [newType, setNewType] = useState(0)
 
-    const handleFormSubmitting = async(e) => {
-        e.preventDefault();
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
 
-        setSubmitting(true)
-        try{
-            const response = await fetch('https://localhost:5000/predict', {
-                method: 'GET',
-                body: JSON.stringify({
-                    age: post.age,
-                    bloodPressure: post.bloodPressure,
-                    insulinLevel: post.insulinLevel,
-                    BMI: post.BMI,
-                    diabetesPedigreeFunction: post.diabetesPedigreeFunction,
-                    bloodGlucose: post.bloodGlucose,
-                    familyHistory: post.familyHistory,
-                    pregnancies: post.pregnancies
+        setFileName(file ? file.name : null);
+
+        if(!file) return;
+
+        const newFormData = new FormData();
+        newFormData.append('image', file)
+        setImage(newFormData)
+      };
+
+    const handleFormSubmitting = (e) => {
+
+        const submitInput = async() => {
+
+
+            setSubmitting(true)
+            try{
+                const response = await fetch('http://127.0.0.1:5000/predict_from_data', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        age: post.age,
+                        bloodPressure: post.bloodPressure,
+                        insulinLevel: post.insulinLevel,
+                        BMI: post.BMI,
+                        diabetesPedigreeFunction: post.diabetesPedigreeFunction,
+                        bloodGlucose: post.bloodGlucose,
+                        pregnancies: post.pregnancies
+                    })
+                    
                 })
-                
-            })
-            if(response.ok){
-                const data = await response.json()
-                setAnalysedType(data)
-                setSubmittedReport(true)
+                if(response.ok){
+                    const data = await response.json()
+                    setAnalysedType(data)
+                    setSubmittedReport(true)
+                }
+            }
+            catch(err){
+                console.log(err)
+
+            }
+            finally{
+                setSubmitting(false)
             }
         }
-        catch(err){
-            console.log(err)
 
+        const submitImage = async () => {
+            setSubmitting(true);
+            try{
+                const response = await fetch('http://127.0.0.1:5000/predict', {
+                    method: 'POST',
+                    body: image
+                    
+                })
+                if(response.ok){
+                    const data = await response.json()
+                    setAnalysedType(data)
+                    setSubmittedReport(true)
+                }
+            }
+            catch(err){
+                console.log(err)
+
+            }
+            finally{
+                setSubmitting(false)
+            }
         }
-        finally{
-            setSubmitting(false)
+
+        if(image){
+            submitImage()
+        }
+        else{
+            submitInput()
         }
     }
 
@@ -77,8 +123,6 @@ function CreateSession(){
                         BMI: post.BMI,
                         diabetesPedigreeFunction: post.diabetesPedigreeFunction,
                         bloodGlucose: post.bloodGlucose,
-                        familyHistory: post.familyHistory,
-                        pregnancies: post.pregnancies,
                         diabetesVersion: newType
                     })
                    
@@ -179,8 +223,8 @@ function CreateSession(){
         setPost={setPost}
         submitting = {isSubmitting}
         handleSubmitting={handleFormSubmitting}
-        isChecked={isChecked}
-        setChecked={setChecked}
+        fileName={fileName}
+        handleFileChange={handleFileChange}
         />
         
         ) : (
