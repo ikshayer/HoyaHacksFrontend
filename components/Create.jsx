@@ -33,32 +33,39 @@ function Create(
     const [loading, setLoading] = useState(false);
     const [progress, setProgress] = useState(0);
 
+    /*
+    
+
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
 
         if(!file) return
+
         
-        
-        setLoading(true);
+
+        const worker = await createWorker();
 
         try {
+            setLoading(true);
+            console.log('this loads')
             const worker = await createWorker();
-            
             await worker.reinitialize("eng");
+            console.log('pass')
             const { data } = await worker.recognize(file);
             console.log(data.text)
             console.log('pass')
+            setFileName(file.name)
             setText(data.text);
             await worker.terminate()
         } catch (error) {
             console.error("OCR Error:", error);
         }
-        finally{
-            setLoading(false)
-        }
+        
+        setLoading(false)
       };
+    */
 
-      
+/*     
   const extractText = async () => {
     setLoading(true);
     const worker = await createWorker({
@@ -84,7 +91,7 @@ function Create(
     }
     
   };
-  
+*/
 
     const handleBrowseClick = () => {
         fileInputRef.current.click()
@@ -94,8 +101,8 @@ function Create(
     return(
         <>
         <form 
-        className="w-full border border-gray-300 rounded-xl bg-white/[0.6] py-12"
-        onSubmit={extractText}
+        className="flex w-full border border-gray-300 rounded-xl bg-white/[0.6] py-12"
+        
         >
             {
             /*<div className="h-80 w-full bg-gradient-to-r from-gray-500 to-slate-900 flex-center rounded-xl py-24 px-8">
@@ -104,7 +111,7 @@ function Create(
                 </h1>
             */
             }
-            <div className="text-left px-8 w-full">
+            <div className="border-r-2 text-left px-8 w-1/2 max-lg:w-full">
                 <div className="border-b-2 pb-5">
                 <h1 className="font-inter text-2xl text-black font-bold ">
                     {type} your Information
@@ -113,7 +120,6 @@ function Create(
                     Please provide neccessary details including your doctor's report for us to access your information
                 </p>
                 </div>
-                <div className="">
                 <div className="mt-5 mr-8">
 
                     <div className="flex items-center">
@@ -128,7 +134,7 @@ function Create(
                     }}
                     />
                     </div>
-
+                    {/*
                     <div
                     className="mt-2 flex items-center"
                     >
@@ -173,47 +179,139 @@ function Create(
                         </div>
 
                     </div>
-
-                </div>
+                    */}
+                    <div
+                    className="mt-4"
+                    >
+                        <p
+                        className="font-satoshi font-bold text-sm text-black tracking-wide mt-1 pr-8"
+                        >
+                           Age 
+                        </p>
+                        <input
+                        placeholder="Please provide your age"
+                        className="mt-2 text-sm font-medium font-inter border border-gray-300 px-2 rounded py-2 w-full outline-none focus:border-gray-900"
+                        onChange={(e) => {
+                            setPost({...post, age: e.target.value})
+                        }}
+                        />
+                    </div>
+                    <div
+                    className="mt-4"
+                    >
+                        <p
+                        className="font-satoshi font-bold text-sm text-black tracking-wide mt-1 pr-8"
+                        >
+                           BMI
+                        </p>
+                        <input
+                        placeholder="Please provide your BMI"
+                        onChange={(e) => {
+                            setPost({...post, BMI: e.target.value})
+                        }}
+                        className="mt-2 text-sm font-medium font-inter border border-gray-300 px-2 rounded py-2 w-full outline-none focus:border-gray-900"
+                        />
+                    </div>
+                    <div
+                    className="mt-4"
+                    >
+                        <p
+                        className="font-satoshi font-bold text-sm text-black tracking-wide mt-1 pr-8"
+                        >
+                           Insulin Levels
+                        </p>
+                        <input
+                        placeholder="Please provide your insulin levels in µU/mL"
+                        onChange={(e) => {
+                            setPost({...post, insulinLevel: e.target.value})
+                        }}
+                        className="mt-2 text-sm font-medium font-inter border border-gray-300 px-2 rounded py-2 w-full outline-none focus:border-gray-900"
+                        />
+                    </div>
+                    
+                    
 
             </div>
-            
-
-                <div className="flex-between mt-8 -mb-4">
-                    <button 
-                    type="button"
-                    className="rounded-lg bg-white py-1.5 px-5 text-black transition-all p-2 hover:bg-black hover:text-white text-center text-sm font-inter flex items-center justify-center font-medium"
-                    onClick={() => router.push('/')}
+    
+            </div>
+            <div className="w-1/2 px-8">
+                    <div
+                    className="mt-4 w-full"
                     >
-                        Cancel
-                    </button>
-                    <button 
-                    className="rounded-lg border border-black bg-black py-1.5 px-5 text-white transition-all hover:bg-white hover:text-black text-center text-sm font-inter flex items-center justify-center font-medium"
-                    onClick={() => extractText()}
-                    disabled={submitting}
-                    type="button"
+                        <p
+                        className="font-satoshi font-bold text-sm text-black tracking-wide mt-1 pr-8"
+                        >
+                           Blood Pressure
+                        </p>
+                        <input
+                        placeholder="Please provide your blood pressure in mmHg"
+                        onChange={(e) => {
+                            setPost({...post, bloodPressure: e.target.value})
+                        }}
+                        className="mt-2 text-sm font-medium font-inter border border-gray-300 px-2 rounded py-2 w-full outline-none focus:border-gray-900"
+                        />
+                    </div>
+                    <div
+                    className="mt-4"
                     >
-                        {loading ? 'Submitting...': 'Submit'}
-                    </button>
-                </div>
+                        <p
+                        className="font-satoshi font-bold text-sm text-black tracking-wide mt-1 pr-8"
+                        >
+                           Skin Thickness
+                        </p>
+                        <input
+                        placeholder="Please provide your skin thickness in µm"
+                        className="mt-2 text-sm font-medium font-inter border border-gray-300 px-2 rounded py-2 w-full outline-none focus:border-gray-900"
+                        />
+                    </div>
+                    <div
+                    className="mt-4"
+                    >
+                        <p
+                        className="font-satoshi font-bold text-sm text-black tracking-wide mt-1 pr-8"
+                        >
+                           Diabetes Pedigree Function
+                        </p>
+                        <input
+                        placeholder="Please provide your DPF value"
+                        className="mt-2 text-sm font-medium font-inter border border-gray-300 px-2 rounded py-2 w-full outline-none focus:border-gray-900"
+                        />
+                    </div>
+                    <div
+                    className="mt-4"
+                    >
+                        <p
+                        className="font-satoshi font-bold text-sm text-black tracking-wide mt-1 pr-8"
+                        >
+                           Number of Pregnancies
+                        </p>
+                        <input
+                        onChange={(e) => {
+                            setPost({...post, pregnancies: e.target.value})
+                        }}
+                        placeholder="Please provide the number of pregnancy you have had"
+                        className="mt-2 text-sm font-medium font-inter border border-gray-300 px-2 rounded py-2 w-full outline-none focus:border-gray-900"
+                        />
+                        </div>
+                        <div className="flex-between mt-8 -mb-4">
+                        <button 
+                        type="button"
+                        className="rounded-lg bg-white py-1.5 px-5 text-black transition-all p-2 hover:bg-black hover:text-white text-center text-sm font-inter flex items-center justify-center font-medium"
+                        onClick={() => router.push('/')}
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                        className="rounded-lg border border-black bg-black py-1.5 px-5 text-white transition-all hover:bg-white hover:text-black text-center text-sm font-inter flex items-center justify-center font-medium"
+                        disabled={submitting}
+                        type="button"
+                        >
+                            {loading ? 'Submitting...': 'Submit'}
+                        </button>
+                    </div>
 
-                
-
-
-            </div>         
+                </div>         
         </form>
-        <div
-            className={`w-full border border-gray-300 rounded-xl px-8 py-4 mt-3 ${loading ? '' : 'hidden'}`}
-            >
-            <Progress value={progress}/>
-        </div>
-        <div
-        className={`mt-12 border border-gray-300 w-full px-12 py-8 `}
-        >
-            <span>
-                {text}
-            </span>
-        </div>
         </>
     )
 }

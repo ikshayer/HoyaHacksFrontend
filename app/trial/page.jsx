@@ -2,6 +2,7 @@
 
 import Create from "@components/Create"
 // import { useSession } from "next-auth/react"
+import Prediction from "@components/Prediction"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@hooks/use-toast"
@@ -9,26 +10,102 @@ function CreateSession(){
 
     // const {data: session} = useSession()
     const {toast} = useToast()
-
+    const [isReportCorrect, setReportCorrect] = useState(false)
+    const [hasSubmittedReport, setSubmittedReport] = useState(false)
+    const [submittedData, setSubmittedData] = useState(false)
+    const [analysedType, setAnalysedType] = useState(0)
     const router = useRouter()
 
     const [isChecked, setChecked] = useState(false)
     const [post, setPost] = useState({
         age: '',
-        gender: '',
+        bloodPressure: '',
         insulinLevel: '',
-        cPeptide: '',
-        HOMA: '',
+        BMI: '',
+        diabetesPedigreeFunction: '',
         bloodGlucose: '',
         familyHistory: false,
-        physicalActivity: '',
-        bmi: ''        
+        pregnancies: '',       
     })
     const [isSubmitting, setSubmitting] = useState(false)
+    const [newType, setNewType] = useState(0)
 
-    const handleSubmitting = async(e) => {
-        
+    const handleFormSubmitting = async(e) => {
+        e.preventDefault();
+
+        setSubmitting(true)
+        try{
+            const response = await fetch('https://localhost:5000/predict', {
+                method: 'GET',
+                body: JSON.stringify({
+                    age: post.age,
+                    bloodPressure: post.bloodPressure,
+                    insulinLevel: post.insulinLevel,
+                    BMI: post.BMI,
+                    diabetesPedigreeFunction: post.diabetesPedigreeFunction,
+                    bloodGlucose: post.bloodGlucose,
+                    familyHistory: post.familyHistory,
+                    pregnancies: post.pregnancies
+                })
+                
+            })
+            if(response.ok){
+                const data = await response.json()
+                setAnalysedType(data)
+                setSubmittedReport(true)
+            }
+        }
+        catch(err){
+            console.log(err)
+
+        }
+        finally{
+            setSubmitting(false)
+        }
     }
+
+    const handleDataSubmission = () => {
+        const submitData = async () => {
+            setSubmitting(true)
+            try{
+                const response = await fetch('/api/uploadData', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        age: post.age,
+                        bloodPressure: post.bloodPressure,
+                        insulinLevel: post.insulinLevel,
+                        BMI: post.BMI,
+                        diabetesPedigreeFunction: post.diabetesPedigreeFunction,
+                        bloodGlucose: post.bloodGlucose,
+                        familyHistory: post.familyHistory,
+                        pregnancies: post.pregnancies,
+                        diabetesVersion: newType
+                    })
+                   
+                })
+                if(response.ok){
+                    toast({
+                        variant: 'success',
+                        title: 'Thank you for you contribution',
+                        description: "You have successfully posted your information to our database"
+                    })
+                    setSubmittedData(true)
+                }
+            }
+            catch(err){
+                toast({
+                    variant: 'destructive',
+                    title: 'Oops, something went wrong',
+                    description: "We could not post your data to our database..."
+                })
+            }
+            finally{
+                setSubmitting(false)
+            }
+        }
+        submitData()
+    }
+    
 
     /*
     const handleSubmitting = async(e) =>{
@@ -94,15 +171,31 @@ function CreateSession(){
     */
 
     return(
+        <>
+        {!hasSubmittedReport ? (
         <Create
         type='Fill'
         post={post}
         setPost={setPost}
         submitting = {isSubmitting}
-        handleSubmitting={handleSubmitting}
+        handleSubmitting={handleFormSubmitting}
         isChecked={isChecked}
         setChecked={setChecked}
         />
+        
+        ) : (
+        
+        <Prediction
+        type={analysedType}
+        isReportCorrect={isReportCorrect}
+        setReportCorect={setReportCorrect}
+        setNewType={setNewType}
+        handleSubmit={handleDataSubmission}
+        />
+        )
+        
+        }
+        </>
     )
 }
 
